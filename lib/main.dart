@@ -1,53 +1,50 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'MainScreen.dart';
+import 'controllers/theme_controller.dart';
+import 'views/main_screen.dart';
+import 'utils/themes.dart';
+import 'utils/constants.dart';
 
 void main() {
-  runApp(const StartupApp());
+  runApp(const IdeaSparkApp());
 }
 
-class StartupApp extends StatefulWidget {
-  const StartupApp({super.key});
+class IdeaSparkApp extends StatefulWidget {
+  const IdeaSparkApp({super.key});
 
   @override
-  State<StartupApp> createState() => _StartupAppState();
+  State<IdeaSparkApp> createState() => _IdeaSparkAppState();
 }
 
-class _StartupAppState extends State<StartupApp> {
-  bool isDarkMode = false;
+class _IdeaSparkAppState extends State<IdeaSparkApp> {
+  bool _isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
-    themeLoadPreference();
+    _loadThemePreference();
   }
 
-  Future<void> themeLoadPreference() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<void> _loadThemePreference() async {
+    bool savedTheme = await ThemeController.loadThemePreference();
     setState(() {
-      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      _isDarkMode = savedTheme;
     });
   }
 
-  Future<void> toggleTheme() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<void> _toggleTheme() async {
+    bool newTheme = await ThemeController.toggleTheme();
     setState(() {
-      isDarkMode = !isDarkMode;
+      _isDarkMode = newTheme;
     });
-    await prefs.setBool('isDarkMode', isDarkMode);
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'IdeaSpark',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      title: AppConstants.appName,
+      theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.darkTheme,
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: SplashScreen(toggleTheme: toggleTheme, isDarkMode: isDarkMode),
       debugShowCheckedModeBanner: false,
     );
