@@ -1,54 +1,54 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'MainScreen.dart';
+import 'controllers/theme_controller.dart';
+import 'views/main_screen.dart';
+import 'utils/themes.dart';
+import 'utils/constants.dart';
 
 void main() {
-  runApp(const StartupApp());
+  runApp(const IdeaSparkApp());
 }
 
-class StartupApp extends StatefulWidget {
-  const StartupApp({super.key});
+class IdeaSparkApp extends StatefulWidget {
+  const IdeaSparkApp({super.key});
 
   @override
-  State<StartupApp> createState() => _StartupAppState();
+  State<IdeaSparkApp> createState() => _IdeaSparkAppState();
 }
 
-class _StartupAppState extends State<StartupApp> {
-  bool isDarkMode = false;
+class _IdeaSparkAppState extends State<IdeaSparkApp> {
+  bool _isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
-    themeLoadPreference();
+    _loadThemePreference();
   }
 
-  Future<void> themeLoadPreference() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<void> _loadThemePreference() async {
+    bool savedTheme = await ThemeController.loadThemePreference();
     setState(() {
-      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      _isDarkMode = savedTheme;
     });
   }
 
-  Future<void> toggleTheme() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<void> _toggleTheme() async {
+    bool newTheme = await ThemeController.toggleTheme();
     setState(() {
-      isDarkMode = !isDarkMode;
+      _isDarkMode = newTheme;
     });
-    await prefs.setBool('isDarkMode', isDarkMode);
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'IdeaSpark',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: SplashScreen(toggleTheme: toggleTheme, isDarkMode: isDarkMode),
+      title: AppConstants.appName,
+      theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.darkTheme,
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: SplashScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -74,11 +74,10 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  bool isDarkMode = false;
+
   @override
   void initState() {
     super.initState();
-    _loadThemePreference();
     _logoController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -101,6 +100,90 @@ class _SplashScreenState extends State<SplashScreen>
     _logoController.forward();
 
     Timer(const Duration(seconds: 3), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainScreen(
+            toggleTheme: widget.toggleTheme,
+            isDarkMode: widget.isDarkMode,
+          ),
+        ),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _logoController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: widget.isDarkMode ? Colors.black : Colors.white,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ScaleTransition(
+              scale: _scaleAnimation,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).primaryColor.withOpacity(0.3),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.lightbulb,
+                  size: 60,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+            SlideTransition(
+              position: _slideAnimation,
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Column(
+                  children: [
+                    Text(
+                      AppConstants.appName,
+                      style: GoogleFonts.merriweather(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: widget.isDarkMode ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Spark Your Next Big Idea',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: widget.isDarkMode 
+                            ? Colors.white70 
+                            : Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
