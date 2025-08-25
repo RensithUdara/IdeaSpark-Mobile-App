@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'MainScreen.dart';
 
 void main() {
@@ -126,6 +128,7 @@ class _SplashScreenState extends State<SplashScreen>
     });
     await prefs.setBool('isDarkMode', isDarkMode);
   }
+
   @override
   void dispose() {
     _logoController.dispose();
@@ -138,7 +141,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     return Scaffold(
       backgroundColor:
-      isDark ? const Color(0xFF111827) : const Color(0xFFF3F4F6),
+          isDark ? const Color(0xFF111827) : const Color(0xFFF3F4F6),
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -215,11 +218,10 @@ final ThemeData lightTheme = ThemeData(
     elevation: 0,
   ),
   colorScheme: const ColorScheme.light(
-    primary: Color(0xFFFB923C),   // Orange
+    primary: Color(0xFFFB923C), // Orange
     secondary: Color(0xFFF472B6), // Pink
-    tertiary: Color(0xFF6366F1),  // Indigo
-    surface: Color(0xFFFFFBF7),   // Light surface
-    background: Color(0xFFFFF7ED),// Cream background
+    tertiary: Color(0xFF6366F1), // Indigo
+    surface: Color(0xFFFFFBF7), // Cream background
   ),
   textTheme: GoogleFonts.poppinsTextTheme(),
   elevatedButtonTheme: ElevatedButtonThemeData(
@@ -243,11 +245,10 @@ final ThemeData darkTheme = ThemeData(
     elevation: 0,
   ),
   colorScheme: const ColorScheme.dark(
-    primary: Color(0xFFF97316),  // Orange Glow
-    secondary: Color(0xFFEC4899),// Pink Accent
+    primary: Color(0xFFF97316), // Orange Glow
+    secondary: Color(0xFFEC4899), // Pink Accent
     tertiary: Color(0xFF818CF8), // Indigo Accent
-    surface: Color(0xFF1E293B),  // Dark Card Surface
-    background: Color(0xFF0F172A), // Background
+    surface: Color(0xFF1E293B), // Background
   ),
   textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
   elevatedButtonTheme: ElevatedButtonThemeData(
@@ -260,4 +261,3 @@ final ThemeData darkTheme = ThemeData(
     ),
   ),
 );
-
